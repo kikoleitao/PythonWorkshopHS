@@ -25,83 +25,90 @@ apostados, se não houver créditos suficientes o jogador é informado e repete-
 
 
 class Player:
-    credits = 0.0
+    credits = 0
     def __init__(self, credits):
         self.credits = credits
 
 
-def play(player):
-    """
-    Plays until player wants or until he's out of credits
-    """
-    keep_playing_answer = keep_playing(player)
-    while(keep_playing_answer and player.credits > 0):
-        answer = input("How many credits do you want to bet?")
-        while(not_valid_entry(answer) or float(answer) > player.credits):
-            print("Invalid answer")
-            answer = input("How many credits do you want to bet?")
-        bet = float(answer)
-        round(player, bet)
-        keep_playing_answer = keep_playing(player)
-        
-
-def keep_playing(player):
-    """
-    Asks the player if he wants to keep playing: (Yes/yes) or (No/no)
-    """
-
-    keep_playing_question = input("Do you wanna keep playing? (Yes/No)")
-    match(keep_playing_question.lower()):
-        case "yes":
-            return True
-        case "no":
-            return False
-        case _:
-            print("Wrong input")
-            return keep_playing(player)
+    def play(self):
+        """
+        Plays until player wants or until he's out of credits
+        """
+        while(self.keep_playing() and self.credits > 0):
+            answer_bet = input("How many credits do you want to bet?")
+            while(invalid_credit_answer(answer_bet) or int(answer_bet) > self.credits):
+                print("Invalid answer")
+                answer_bet = input("How many credits do you want to bet?")
+            self.round(int(answer_bet))
             
 
-def round(player, bet):
-    """
-    Spins the three wheels and updates player's credits
-    """
-    player.credits -= bet
+    def keep_playing(self):
+        """
+        Asks the player if he wants to keep playing: (Yes/yes) or (No/no)
+        """
+        answer = input("Do you wanna keep playing? (Yes/No)")
+        while invalid_keep_playing_answer(answer):
+            print("Wrong input")
+            answer = input("Do you wanna keep playing? (Yes/No)")
 
-    firstWheel = choices(simbols, weights) 
-    secondWheel = choices(simbols, weights)
-    thirdWheel = choices(simbols, weights)
-    wheels = firstWheel + secondWheel + thirdWheel
-    print(*wheels, sep = "  ||  ")
-    if(firstWheel == secondWheel == thirdWheel):
-        match(wheels[0]):
-            case "#":
-                player.credits += 5 * bet
-            case "$":
-                player.credits += 10 * bet
-            case "%": 
-                player.credits += 20 * bet
-            case "&":
-                player.credits += 70 * bet
-            case "@":
-                player.credits += 200 * bet
-            case "£":
-                player.credits += 1000 * bet
-            case "€":
-                player.credits += 100_000 * bet
-        print(f"You won! You have now {player.credits}$")
-    else:
-        print(f"You lost... You have now {player.credits}$")
-    
+        match(answer.lower()):
+            case "yes":
+                return True
+            case "no":
+                return False
+                
 
-def not_valid_entry(answer):
-    return (not answer.isdigit()) or float(answer) <= 0
+    def round(self, bet):
+        """
+        Spins the three wheels and updates player's credits
+        """
+        self.credits -= bet
+
+        firstWheel = choices(simbols, weights) 
+        secondWheel = choices(simbols, weights)
+        thirdWheel = choices(simbols, weights)
+        print(firstWheel[0],secondWheel[0],thirdWheel[0], sep = "   ||   " )
+        if(firstWheel == secondWheel == thirdWheel):
+            match(firstWheel[0]):
+                case "#":
+                    self.credits += 5 * bet
+                case "$":
+                    self.credits += 10 * bet
+                case "%": 
+                    self.credits += 20 * bet
+                case "&":
+                    self.credits += 70 * bet
+                case "@":
+                    self.credits += 200 * bet
+                case "£":
+                    self.credits += 1000 * bet
+                case "€":
+                    self.credits += 100_000 * bet
+            print(f"You won! You have now {self.credits}$")
+        else:
+            print(f"You lost... You have now {self.credits}$")
+        
+
+def invalid_credit_answer(answer):
+    """
+    Auxiliar function to play method:
+    returns true if answer is not numeric or negative
+    """
+    return (not answer.isdigit()) or int(answer) <= 0
+
+def invalid_keep_playing_answer(answer):
+    """
+    Auxiliar function to keep_playing method:
+    returns true if answer is not Yes/yes or No/no
+    """
+    return answer.lower() not in ["yes", "no"]
+
 
 
 print("Welcome to HackerSchool's Slot Machine! :)")
-answer = input("How many credits would you like to deposit?")
-while(not_valid_entry(answer)):
+answer_credits = input("How many credits would you like to deposit?")
+while(invalid_credit_answer(answer_credits)):
     print("Invalid answer")
-    answer = input("How many credits would you like to deposit?")
-ini_credits = float(answer)
-player = Player(ini_credits)
-play(player)
+    answer_credits = input("How many credits would you like to deposit?")
+player = Player(int(answer_credits))
+player.play()
